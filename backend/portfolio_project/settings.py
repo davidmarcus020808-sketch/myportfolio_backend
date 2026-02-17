@@ -9,12 +9,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-for-dev")
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-for-dev")  # fallback for dev
 DEBUG = False
-
-ALLOWED_HOSTS = [
-    ".onrender.com",  # backend domain
-]
+ALLOWED_HOSTS = ['.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
@@ -27,13 +24,13 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
-    'portfolio_app',
+    'portfolio_app',  # your app
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # must stay at top
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # serve static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,43 +82,13 @@ USE_TZ = True
 
 # Static and media files
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"  # required by Whitenoise
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
-# ================================
-# CORS CONFIGURATION
-# ================================
-
-CORS_ALLOW_ALL_ORIGINS = False  # safer for production
-
-CORS_ALLOWED_ORIGINS = [
-    "https://davidmarcusportfolio.vercel.app",
-]
-
-# Allow Vercel preview deployments
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
-]
-
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "OPTIONS",
-]
-
-# ================================
-# CSRF FIX (THIS WAS MISSING)
-# ================================
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://davidmarcusportfolio.vercel.app",
-]
-
-CSRF_TRUSTED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
-]
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True  # restrict in production if needed
 
 # Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -142,10 +109,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # -------------------
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")
 
-# Debug prints (optional)
+# -------------------
+# Debug prints (optional, remove in production)
+# -------------------
 print("DEBUG: EMAIL_HOST_USER loaded:", bool(EMAIL_HOST_USER))
 print("DEBUG: RECAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
-print(
-    "DEBUG: RECAPTCHA_SECRET_KEY first 10 chars:",
-    RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None"
-)
+print("DEBUG: RECAPTCHA_SECRET_KEY first 10 chars:", RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None")
