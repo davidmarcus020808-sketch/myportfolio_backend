@@ -8,9 +8,10 @@ from .serializers import ContactMessageSerializer
 from django.shortcuts import get_object_or_404
 from .models import Project
 from .serializers import ProjectSerializer
+from django.views.decorators.csrf import csrf_exempt  # <-- import this
 
-
-
+# ------------------ CONTACT ENDPOINT ------------------
+@csrf_exempt  # <-- add this
 @api_view(["GET", "POST"])
 def contact_view(request):
     # ------------------ Health Check ------------------
@@ -99,13 +100,9 @@ Message:
         status=status.HTTP_201_CREATED,
     )
 
-
-
+# ------------------ PROJECT ENDPOINTS ------------------
 @api_view(["GET"])
 def project_list(request):
-    """
-    Returns all projects (used if you want to list / prefetch everything).
-    """
     qs = Project.objects.prefetch_related("built").all()
     serializer = ProjectSerializer(qs, many=True, context={"request": request})
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -113,9 +110,6 @@ def project_list(request):
 
 @api_view(["GET"])
 def project_detail(request, slug):
-    """
-    Returns a single project by slug (this matches frontend's project.id).
-    """
     project = get_object_or_404(Project.objects.prefetch_related("built"), slug=slug)
     serializer = ProjectSerializer(project, context={"request": request})
     return Response(serializer.data, status=status.HTTP_200_OK)
