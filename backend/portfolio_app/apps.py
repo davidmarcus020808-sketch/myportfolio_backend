@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from django.conf import settings
 import os
 
 class PortfolioAppConfig(AppConfig):
@@ -7,17 +6,19 @@ class PortfolioAppConfig(AppConfig):
     name = 'portfolio_app'
 
     def ready(self):
-        # Only run superuser creation in production or when explicitly allowed
-        if os.environ.get("CREATE_SUPERUSER", "") == "True":
+        # Only run this once, after migrations
+        if os.environ.get("CREATE_SUPERUSER", "False") == "True":
             from django.contrib.auth import get_user_model
             User = get_user_model()
 
-            username = "DAVID"
-            email = "davidmarcus020808@gmail.com"
-            password = "Destinyekong6++"
+            SUPERUSER_USERNAME = os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin")
+            SUPERUSER_EMAIL = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@example.com")
+            SUPERUSER_PASSWORD = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "password123")
 
-            if not User.objects.filter(username=username).exists():
-                User.objects.create_superuser(username=username, email=email, password=password)
-                print("Superuser created!")
-            else:
-                print("Superuser already exists.")
+            if not User.objects.filter(username=SUPERUSER_USERNAME).exists():
+                print(f"Creating superuser: {SUPERUSER_USERNAME}")
+                User.objects.create_superuser(
+                    username=SUPERUSER_USERNAME,
+                    email=SUPERUSER_EMAIL,
+                    password=SUPERUSER_PASSWORD
+                )
