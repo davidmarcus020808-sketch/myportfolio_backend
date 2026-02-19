@@ -1,17 +1,26 @@
-# admin.py
 from django.contrib import admin
 from .models import ContactMessage, Project, BuiltItem
 
+
+# ------------------ CONTACT MESSAGE ADMIN ------------------
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name","email","subject","status","created_at","short_message")
+    list_display = (
+        "name",
+        "email",  # keep field for reference, but no sending email
+        "subject",
+        "status",
+        "created_at",
+        "short_message",
+    )
+    list_filter = ("status", "created_at")
+    search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("created_at", "honeypot")
-    list_filter = ("status","created_at")
-    search_fields = ("name","email","subject","message")
+
     actions = ["mark_as_read"]
 
     def short_message(self, obj):
-        return obj.message[:50] + ("..." if len(obj.message)>50 else "")
+        return obj.message[:50] + ("..." if len(obj.message) > 50 else "")
     short_message.short_description = "Message Preview"
 
     def mark_as_read(self, request, queryset):
