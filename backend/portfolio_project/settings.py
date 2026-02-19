@@ -9,7 +9,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-for-dev")  # fallback for dev
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-for-dev")
 DEBUG = False
 ALLOWED_HOSTS = ['.onrender.com']
 
@@ -30,7 +30,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # serve static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,7 +82,7 @@ USE_TZ = True
 
 # Static and media files
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"  # required by Whitenoise
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
@@ -94,24 +94,12 @@ CORS_ALLOW_ALL_ORIGINS = True  # restrict in production if needed
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # -------------------
-# Email settings
-# -------------------
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# -------------------
 # reCAPTCHA
 # -------------------
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")
 
 # -------------------
-# Debug prints (optional, remove in production)
+# Debug prints
 # -------------------
-print("DEBUG: EMAIL_HOST_USER loaded:", bool(EMAIL_HOST_USER))
-print("DEBUG: RECAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
-print("DEBUG: RECAPTCHA_SECRET_KEY first 10 chars:", RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None")
+print("DEBUG: reCAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
+print("DEBUG: reCAPTCHA_SECRET_KEY first 10 chars:", RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None")

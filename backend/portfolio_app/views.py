@@ -10,106 +10,98 @@ from .models import Project
 from .serializers import ProjectSerializer
 from django.views.decorators.csrf import csrf_exempt  # <-- import this
 
-# ------------------ CONTACT ENDPOINT ------------------
-@csrf_exempt  # <-- add this
-@api_view(["GET", "POST"])
-def contact_view(request):
-    # ------------------ Health Check ------------------
-    if request.method == "GET":
-        return Response(
-            {"message": "Contact endpoint is live. Use POST to submit messages."},
-            status=status.HTTP_200_OK,
-        )
+from django.contrib import admin
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils import timezone
+from django.conf import settings
+from .models import ContactMessage, Project, BuiltItem
 
-    data = request.data.copy()
 
-    # ------------------ Honeypot Check ------------------
-    if data.get("honeypot"):
-        return Response(
-            {"error": "Spam detected."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    # ------------------ reCAPTCHA Verification ------------------
-    token = data.pop("recaptcha_token", None)
-    if not token:
-        return Response(
-            {"error": "Please complete the reCAPTCHA."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    # Send token + secret to Google
-    try:
-        google_response = requests.post(
-            "https://www.google.com/recaptcha/api/siteverify",
-            data={
-                "secret": settings.RECAPTCHA_SECRET_KEY,
-                "response": token,
-            },
-            timeout=5,
-        ).json()
-    except requests.RequestException:
-        return Response(
-            {"error": "Unable to verify reCAPTCHA."},
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
-
-    # ------------------ Debug Logging ------------------
-    print("=== Google reCAPTCHA Response ===")
-    print(google_response)
-    print("=================================")
-
-    # Check if verification succeeded
-    if not google_response.get("success", False):
-        return Response(
-            {
-                "error": "reCAPTCHA verification failed.",
-                "details": google_response.get("error-codes", []),
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    # ------------------ Validate & Save Message ------------------
-    serializer = ContactMessageSerializer(data=data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    message = serializer.save()
-
-    # ------------------ Send Email ------------------
-    try:
-        send_mail(
-            subject=f"New Contact: {message.subject}",
-            message=f"""
-Name: {message.name}
-Email: {message.email}
-Phone: {message.phone or 'N/A'}
-
-Message:
-{message.message}
-            """,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=["davidmarcus020808@gmail.com"],
-            fail_silently=False,
-        )
-    except Exception as e:
-        print("Error sending email:", e)
-
-    return Response(
-        {"message": "Message sent successfully."},
-        status=status.HTTP_201_CREATED,
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "email",
+        "subject",
+        "status",
+        "created_at",
+        "email_sent_at",
+        "short_message",
     )
 
-# ------------------ PROJECT ENDPOINTS ------------------
-@api_view(["GET"])
-def project_list(request):
-    qs = Project.objects.prefetch_related("built").all()
-    serializer = ProjectSerializer(qs, many=True, context={"request": request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    list_filter = ("status", "created_at")
+    search_fields = ("name", "email", "subject", "message")
 
+    # ✅ Only fields that actually exist in the model
+    readonly_fields = ("created_at", "honeypot", "email_sent_at")
 
-@api_view(["GET"])
-def project_detail(request, slug):
-    project = get_object_or_404(Project.objects.prefetch_related("built"), slug=slug)
-    serializer = ProjectSerializer(project, context={"request": request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    actions = ["mark_as_read", "mark_as_replied"]
+
+    def short_message(self, obj):
+        return obj.message[:50] + ("..." if len(obj.message) > 50 else "")
+    short_message.short_description = "Message Preview"
+
+    def mark_as_read(self, request, queryset):
+        updated = queryset.update(status="read")
+        self.message_user(request, f"{updated} message(s) marked as Read.")
+    mark_as_read.short_description = "Mark selected messages as Read"
+
+    def mark_as_replied(self, request, queryset):
+        sent_count = 0
+
+        for message in queryset:
+            if message.status == "replied":
+                continue
+
+            html_content = render_to_string(
+                "emails/reply_email.html",
+                {
+                    "name": message.name,
+                    "message": message.message,
+                },
+            )
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject=f"Re: {message.subject}",
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[message.email],
+            )
+            email.attach_alternative(html_content, "text/html")
+
+            try:
+                email.send()
+                message.status = "replied"
+                message.email_sent_at = timezone.now()
+                message.save()
+                sent_count += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"Failed to send email to {message.email}: {str(e)}",
+                    level="error",
+                )
+
+        self.message_user(
+            request,
+            f"{sent_count} message(s) replied to and email(s) sent.",
+        )
+    mark_as_replied.short_description = "Mark selected messages as Replied and send email"
+
+# admin.py
+class BuiltItemInline(admin.TabularInline):
+    model = BuiltItem
+    extra = 1
+    fields = ("title", "image", "video", "url")  # <-- include video
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("title", "slug", "category", "created_at")
+    prepopulated_fields = {"slug": ("title",)}
+    list_filter = ("category", "created_at")
+    search_fields = ("title", "description", "slug")
+    inlines = [BuiltItemInline]
+    fields = ("title", "slug", "category", "description", "image", "video", "features")

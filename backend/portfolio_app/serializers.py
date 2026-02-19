@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import ContactMessage, Project, BuiltItem
 
-
 # ------------------ CONTACT ------------------
 class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,22 +8,20 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "email",
+            "email",       # still accept email from user, just not sending
             "phone",
             "subject",
             "message",
             "honeypot",
             "status",
             "created_at",
-            "email_sent_at",
         ]
-        read_only_fields = ["status", "created_at", "email_sent_at"]
+        read_only_fields = ["status", "created_at"]  # removed email_sent_at
 
-# serializers.py
-
+# ------------------ BUILT ITEMS ------------------
 class BuiltItemSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
-    video = serializers.SerializerMethodField()  # <-- NEW
+    video = serializers.SerializerMethodField()
 
     class Meta:
         model = BuiltItem
@@ -42,11 +39,11 @@ class BuiltItemSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.video.url) if request else obj.video.url
         return None
 
-
+# ------------------ PROJECTS ------------------
 class ProjectSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
-    video = serializers.SerializerMethodField()  # <-- NEW
+    video = serializers.SerializerMethodField()
     built = BuiltItemSerializer(many=True, read_only=True)
 
     class Meta:
