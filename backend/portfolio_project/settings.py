@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Load .env variables immediately
 load_dotenv()
@@ -58,15 +59,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_project.wsgi.application'
 
-# Database
+# -------------------
+# DATABASE CONFIGURATION
+# -------------------
+# Using Render PostgreSQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get(
+            "DATABASE_URL",
+            "postgresql://myportfolio_jm0x_user:mdNZiaARbgLiPKmiIkW4fszXlwx2ONhr@dpg-d6bs9sf5r7bs739tm0cg-a.oregon-postgres.render.com/myportfolio_jm0x"
+        ),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
+# -------------------
 # Password validation
+# -------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -80,7 +90,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# -------------------
 # Static and media files
+# -------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -88,7 +100,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True  # restrict in production if needed
+CORS_ALLOW_ALL_ORIGINS = True  # you can restrict in production
 
 # Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -99,7 +111,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")
 
 # -------------------
-# Debug prints
+# Debug prints (optional)
 # -------------------
+print("DEBUG: DATABASE_URL loaded:", bool(os.environ.get("DATABASE_URL")))
 print("DEBUG: reCAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
-print("DEBUG: reCAPTCHA_SECRET_KEY first 10 chars:", RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None")
