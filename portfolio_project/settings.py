@@ -1,18 +1,16 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Load .env variables immediately
 load_dotenv()
 
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Media files (uploads)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-# Quick-start development settings - unsuitable for production
-SECRET_KEY = os.environ.get("SECRET_KEY")
+# Security
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-for-dev")
 DEBUG = False
 ALLOWED_HOSTS = ['.onrender.com']
 
@@ -24,14 +22,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',
     'rest_framework',
-    'portfolio_app',
+    'portfolio_app',  # your app
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,28 +59,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_project.wsgi.application'
 
-# Database
+# -------------------
+# DATABASE CONFIGURATION
+# -------------------
+# Using Render PostgreSQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get(
+            "DATABASE_URL",
+            "postgresql://myportfolio_jm0x_user:mdNZiaARbgLiPKmiIkW4fszXlwx2ONhr@dpg-d6bs9sf5r7bs739tm0cg-a.oregon-postgres.render.com/myportfolio_jm0x"
+        ),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
+# -------------------
 # Password validation
+# -------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -89,27 +90,28 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
-STATIC_URL = 'static/'
+# -------------------
+# Static and media files
+# -------------------
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-CORS_ALLOWED_ORIGINS = [
-    "https://davidmarcusportfolio.vercel.app",
-    "https://myportfolio-backend-nic8.onrender.com",
-]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
-    r"^https://.*\.onrender\.com$",
-]
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True  # you can restrict in production
 
+# Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email settings
-
-# reCAPTCHA settings
+# -------------------
+# reCAPTCHA
+# -------------------
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")
 
-# For debugging - print to console to verify values are loaded
-print("DEBUG: EMAIL_HOST_USER loaded:", bool(EMAIL_HOST_USER))
-print("DEBUG: RECAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
-print("DEBUG: RECAPTCHA_SECRET_KEY first 10 chars:", RECAPTCHA_SECRET_KEY[:10] if RECAPTCHA_SECRET_KEY else "None")
+# -------------------
+# Debug prints (optional)
+# -------------------
+print("DEBUG: DATABASE_URL loaded:", bool(os.environ.get("DATABASE_URL")))
+print("DEBUG: reCAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
