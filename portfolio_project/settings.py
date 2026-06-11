@@ -63,14 +63,14 @@ WSGI_APPLICATION = 'portfolio_project.wsgi.application'
 # DATABASE CONFIGURATION
 # -------------------
 # Using Render PostgreSQL
+# -------------------
+# DATABASE CONFIGURATION
+# -------------------
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.environ.get(
-            "DATABASE_URL",
-            "postgresql://myportfolio_jm0x_user:mdNZiaARbgLiPKmiIkW4fszXlwx2ONhr@dpg-d6bs9sf5r7bs739tm0cg-a.oregon-postgres.render.com/myportfolio_jm0x"
-        ),
+        default=os.environ.get("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=True,
     )
 }
 
