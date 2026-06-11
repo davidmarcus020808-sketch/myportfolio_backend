@@ -7,11 +7,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         User = get_user_model()
+
         username = os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin")
         email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "davidmarcus020808@gmail.com")
-        password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "Destinyekong6++")
+        password = os.environ["DJANGO_SUPERUSER_PASSWORD"]
+
         if not User.objects.filter(username=username).exists():
-            User.objects.create_superuser(username=username, email=email, password=password)
-            self.stdout.write(self.style.SUCCESS(f"Superuser {username} created."))
+            User.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password
+            )
+            self.stdout.write(
+                self.style.SUCCESS(f"Superuser {username} created.")
+            )
         else:
-            self.stdout.write(self.style.WARNING(f"Superuser {username} already exists."))
+            self.stdout.write(
+                self.style.WARNING(f"Superuser {username} already exists.")
+            )
