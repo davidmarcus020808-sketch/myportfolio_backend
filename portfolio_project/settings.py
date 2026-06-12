@@ -23,12 +23,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'cloudinary',
-    'cloudinary_storage',
-
     'corsheaders',
     'rest_framework',
-    'portfolio_app',
+    'portfolio_app',  # your app
 ]
 
 MIDDLEWARE = [
@@ -69,11 +66,19 @@ CLOUDINARY_STORAGE = {
     "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
 }
 
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # -------------------
 # DATABASE CONFIGURATION
+# -------------------
+# Using Render PostgreSQL
 # -------------------
 DATABASES = {
     "default": dj_database_url.config(

@@ -115,14 +115,14 @@ def project_detail(request, slug):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+import os
 from django.conf import settings
 from django.http import JsonResponse
 
 def debug_storage(request):
     return JsonResponse({
-        "default_storage_backend": settings.STORAGES.get("default", {}).get("BACKEND"),
+        "django_settings_module": os.environ.get("DJANGO_SETTINGS_MODULE"),
+        "storages_full": settings.STORAGES,
         "cloud_name_set": bool(settings.CLOUDINARY_STORAGE.get("CLOUD_NAME")),
-        "api_key_set": bool(settings.CLOUDINARY_STORAGE.get("API_KEY")),
-        "api_secret_set": bool(settings.CLOUDINARY_STORAGE.get("API_SECRET")),
         "cloud_name_value": settings.CLOUDINARY_STORAGE.get("CLOUD_NAME"),
     })
