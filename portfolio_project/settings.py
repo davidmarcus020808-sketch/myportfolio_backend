@@ -16,8 +16,6 @@ ALLOWED_HOSTS = ['.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
-    'cloudinary',
-    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,11 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'cloudinary',
+    'cloudinary_storage',
+
     'corsheaders',
     'rest_framework',
-    'portfolio_app',  # your app
+    'portfolio_app',
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
