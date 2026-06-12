@@ -16,6 +16,8 @@ ALLOWED_HOSTS = ['.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -27,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'portfolio_app',  # your app
 ]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -59,12 +62,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_project.wsgi.application'
 
+# Cloudinary storage
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 # -------------------
 # DATABASE CONFIGURATION
 # -------------------
 # Using Render PostgreSQL
-# -------------------
-# DATABASE CONFIGURATION
 # -------------------
 DATABASES = {
     "default": dj_database_url.config(
@@ -91,13 +108,10 @@ USE_I18N = True
 USE_TZ = True
 
 # -------------------
-# Static and media files
+# Static files
 # -------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True  # you can restrict in production
@@ -109,9 +123,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # reCAPTCHA
 # -------------------
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY")
-
-# -------------------
-# Debug prints (optional)
-# -------------------
-print("DEBUG: DATABASE_URL loaded:", bool(os.environ.get("DATABASE_URL")))
-print("DEBUG: reCAPTCHA_SECRET_KEY loaded:", bool(RECAPTCHA_SECRET_KEY))
