@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Page Not Found</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --accent2: #2563eb;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 60%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 24px;
+      padding: 48px 32px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .code {
+      font-size: clamp(64px, 18vw, 120px);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -4px;
+    }
+
+    h1 {
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 600;
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1 1 140px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0f172a;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: rgba(148, 163, 184, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="code">404</div>
+    <h1>Page not found</h1>
+    <p>
+      The page you're looking for doesn't exist, may have been moved,
+      or the URL is incorrect.
+    </p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Go to Home</a>
+      <a href="/admin/" class="btn btn-secondary">Admin Login</a>
+    </div>
+    <div class="footer-note">myportfolio-backend &middot; error 404</div>
+  </div>
+</body>
+</html>

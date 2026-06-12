@@ -55,10 +55,7 @@ def contact_view(request):
         )
 
     # ------------------ Debug Logging ------------------
-    print("=== Google reCAPTCHA Response ===")
-    print(google_response)
-    print("=================================")
-
+ 
     # Check if verification succeeded
     if not google_response.get("success", False):
         return Response(
@@ -114,15 +111,3 @@ def project_detail(request, slug):
     serializer = ProjectSerializer(project, context={"request": request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-import os
-from django.conf import settings
-from django.http import JsonResponse
-
-def debug_storage(request):
-    return JsonResponse({
-        "django_settings_module": os.environ.get("DJANGO_SETTINGS_MODULE"),
-        "storages_full": settings.STORAGES,
-        "cloud_name_set": bool(settings.CLOUDINARY_STORAGE.get("CLOUD_NAME")),
-        "cloud_name_value": settings.CLOUDINARY_STORAGE.get("CLOUD_NAME"),
-    })
